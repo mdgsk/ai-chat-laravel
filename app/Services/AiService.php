@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Collection;
 
 class AiService
 {
-
+    
     // public function ask(string $question, string $provider = 'gemini'): array
     public function ask(string $question, Collection $recentChats, string $provider = 'gemini'): array
     {
+        // die('aaaaaaaaaaaaaaaaaaa');
+        sleep(3);
+
         if ($provider === 'gemini') {
             return $this->askGemini($question, $recentChats);
         }

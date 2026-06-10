@@ -14,5 +14,7 @@
     hljs.highlightAll();
 </script>
 
+@vite('resources/js/chat.js')
+
 </body>
 </html>

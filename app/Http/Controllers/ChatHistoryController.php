@@ -33,56 +33,56 @@ class ChatHistoryController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'conversation_id' => 'required',
-            'question' => 'required|min:1'
-        ]);
+        // $request->validate([
+        //     'conversation_id' => 'required',
+        //     'question' => 'required|min:1'
+        // ]);
 
-        $recentChats = ChatHistory::where(
-            'conversation_id',
-            $request->conversation_id
-        )
-        ->latest()
-        ->take(5)
-        ->get()
-        ->reverse();
+        // $recentChats = ChatHistory::where(
+        //     'conversation_id',
+        //     $request->conversation_id
+        // )
+        // ->latest()
+        // ->take(5)
+        // ->get()
+        // ->reverse();
 
-        $aiService = new AiService();
-        $startTime = microtime(true);
-        $response = $aiService->ask($request->question, $recentChats);
-        $timeTaken = round(microtime(true) - $startTime, 2);
+        // $aiService = new AiService();
+        // $startTime = microtime(true);
+        // $response = $aiService->ask($request->question, $recentChats);
+        // $timeTaken = round(microtime(true) - $startTime, 2);
 
-        ChatHistory::create([
-            'conversation_id' => $request->conversation_id,
-            'question' => $request->question,
-            'answer' => $response['message'],
-            'provider' => $response['provider'],
-            'model' => $response['model'],
-            'time_taken' => $timeTaken
-        ]);
-
-
-        $conversation = Conversation::find(
-            $request->conversation_id
-        );
-
-        // if (str_starts_with($conversation->title, 'New Chat')) {
-        //     $conversation->update([
-        //         'title' => mb_substr(
-        //             trim($request->question),
-        //             0,
-        //             50
-        //         )
-        //     ]);
-        // }
-
-        $conversation->touch();
+        // ChatHistory::create([
+        //     'conversation_id' => $request->conversation_id,
+        //     'question' => $request->question,
+        //     'answer' => $response['message'],
+        //     'provider' => $response['provider'],
+        //     'model' => $response['model'],
+        //     'time_taken' => $timeTaken
+        // ]);
 
 
-        return redirect()->route(
-            'conversations.show',
-            $request->conversation_id
-        );
+        // $conversation = Conversation::find(
+        //     $request->conversation_id
+        // );
+
+        // // if (str_starts_with($conversation->title, 'New Chat')) {
+        // //     $conversation->update([
+        // //         'title' => mb_substr(
+        // //             trim($request->question),
+        // //             0,
+        // //             50
+        // //         )
+        // //     ]);
+        // // }
+
+        // $conversation->touch();
+
+
+        // return redirect()->route(
+        //     'conversations.show',
+        //     $request->conversation_id
+        // );
     }
 
     /**

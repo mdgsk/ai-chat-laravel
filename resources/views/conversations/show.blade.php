@@ -47,28 +47,30 @@
 
 @forelse ($conversation->chatHistory as $chat)
 
-    <div>
-        <strong>You:</strong>
-        {{ $chat->question }}
-    </div>
+    <div id="chat-history-container">
+        <div>
+            <strong>You:</strong>
+            {{ $chat->question }}
+        </div>
 
-    <div>
-        <strong>AI:</strong>
-        {!! $markdownService->render($chat->answer) !!}
-    </div>
+        <div>
+            <strong>AI:</strong>
+            {!! $markdownService->render($chat->answer) !!}
+        </div>
 
-    <hr>
+        <hr>
+    </div>
 
 @empty
-
-    <p>No messages yet.</p>
-
+    <div id="chat-history-container">
+        <p>No messages yet.</p>
+    </div>
 @endforelse
 
 
 <hr>
 
-<form action="{{ route('chat-histories.store') }}" method="POST">
+<form id="chat-form" action="{{ route('chat-histories.store') }}" method="POST">
     @csrf
 
     <input
@@ -77,17 +79,11 @@
         value="{{ $conversation->id }}"
     >
 
-    <textarea
-        name="question"
-        rows="5"
-        cols="50"
-    ></textarea>
+    <textarea id="question" name="question" rows="5" cols="50"></textarea>
 
     <br><br>
 
-    <button type="submit">
-        Send
-    </button>
+    <button id="submit-btn" type="submit">Ask AI</button>
 </form>
 
 @endsection

@@ -8,6 +8,7 @@ use App\Models\ChatHistory;
 
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\ChatHistoryController;
+use App\Http\Controllers\AjaxChatController;
 
 
 Route::get('/', function () {
@@ -16,4 +17,6 @@ Route::get('/', function () {
 
 Route::resource('conversations', ConversationController::class);
 Route::resource('chat-histories', ChatHistoryController::class);
+
+Route::post('/ajax-chat', [AjaxChatController::class, 'store'])->name('ajax-chat.store');
 
