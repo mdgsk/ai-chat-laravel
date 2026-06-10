@@ -9,7 +9,10 @@ class ChatHistory extends Model
     protected $fillable = [
         'conversation_id',
         'question',
-        'answer'
+        'answer',
+        'provider',
+        'model',
+        'time_taken'
     ];
 
     public function conversation()

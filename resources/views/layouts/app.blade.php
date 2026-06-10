@@ -2,12 +2,17 @@
 <html>
 <head>
     <title>AI Chat Laravel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
 </head>
 <body>
 
-@include('partials.navbar')
-
 @yield('content')
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+
+<script>
+    hljs.highlightAll();
+</script>
 
 </body>
 </html>

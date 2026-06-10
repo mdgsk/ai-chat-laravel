@@ -14,7 +14,9 @@ class ConversationController extends Controller
      */
     public function index()
     {
-        $conversations = Conversation::latest()->get();
+        // $conversations = Conversation::latest()->get();
+        $conversations = Conversation::latest('updated_at')->get();
+
          return view('conversations.index', [
             'conversations' => $conversations
         ]);
@@ -53,6 +55,8 @@ class ConversationController extends Controller
      */
     public function show(Conversation $conversation)
     {
+        $conversation->load('chatHistory');
+
         return view('conversations.show', [
             'conversation' => $conversation
         ]);
