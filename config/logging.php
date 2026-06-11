@@ -128,13 +128,13 @@ return [
         ],
 
         'gemini' => [
-            'driver' => 'single',
+            'driver' => 'daily',
             'path' => storage_path('logs/gemini.log'),
             'level' => 'warning',
         ],
 
         'ollama' => [
-            'driver' => 'single',
+            'driver' => 'daily',
             'path' => storage_path('logs/ollama.log'),
             'level' => 'warning',
         ],

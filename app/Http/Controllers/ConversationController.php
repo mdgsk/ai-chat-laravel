@@ -14,15 +14,20 @@ class ConversationController extends Controller
      */
     public function index()
     {
-        $conversations = Conversation::latest('updated_at')->get();
-        $conversation = $conversations->first();
-
+        // $conversations = Conversation::latest('updated_at')->paginate(env('PAGINATE_CONVERSATION'));
+        $conversations = Conversation::latest('updated_at')
+        ->paginate(
+            env('PAGINATE_CONVERSATION'),
+            ['*'],
+            'conversation_page'
+        );
+        $conversations->appends(request()->query());
+        
         return view(
             'conversations.show',
-            [
-                'conversations' => $conversations,
-                'conversation' => $conversation
-            ]
+            compact(
+                'conversations'
+            )
         );
     }
 
@@ -57,20 +62,35 @@ class ConversationController extends Controller
      */
     public function show(Conversation $conversation)
     {
-        $conversation->load([
-            'chatHistory' => function ($query) {
-                $query->latest();
-            }
-        ]);
+            $chatHistories = $conversation
+        ->chatHistory()
+        ->latest()
+        ->paginate(
+            env('PAGINATE_CHAT'),
+            ['*'],
+            'chat_page'
+        );
+        $chatHistories->appends(request()->query());
 
-        $conversations = Conversation::latest('updated_at')->get();
+        $chatHistories->setCollection(
+            $chatHistories->getCollection()
+        );
+
+        $conversations = Conversation::latest('updated_at')
+        ->paginate(
+            env('PAGINATE_CONVERSATION'),
+            ['*'],
+            'conversation_page'
+        );
+        $conversations->appends(request()->query());
 
         return view(
             'conversations.show',
-            [
-                'conversation' => $conversation,
-                'conversations' => $conversations
-            ]
+            compact(
+                'conversations',
+                'conversation',
+                'chatHistories'
+            )
         );
     }
 
@@ -98,7 +118,29 @@ class ConversationController extends Controller
      */
     public function destroy(Conversation $conversation)
     {
-        //
+        $conversation->delete();
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
+    /**
+     * Rename the specified Conversation.
+     */
+    public function rename(Request $request, Conversation $conversation)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255'
+        ]);
+
+        $conversation->update([
+            'title' => $request->title
+        ]);
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 
 }

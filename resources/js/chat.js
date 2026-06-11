@@ -5,11 +5,12 @@ const submitBtn = document.getElementById('submit-btn');
 const promptInput = document.getElementById('question');
 const historyContainer = document.getElementById('chat-history-container');
 const noHistoryMessage = document.getElementById('no-history-message');
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
 let isProcessing = false;
 
 // console.log(form);
-console.log(historyContainer);
+// console.log(historyContainer);
 
 if (form) {
 
@@ -44,22 +45,10 @@ if (form) {
                     body: new FormData(form)
                 }
             );
-
-            if (!response.ok) {
-
-                // throw new Error(
-                //     'Server error: ' + response.status
-                // );
-                const errorText = await response.text();
-                throw new Error(errorText);
-                
-            }
-
             const data = await response.json();
 
-            console.log(data);
-
             if (data.success) {
+
                 promptInput.value = '';
                 promptInput.focus();
                 historyContainer.scrollTop = 0;
@@ -75,22 +64,25 @@ if (form) {
                 .forEach((block) => {
                     hljs.highlightElement(block);
                 });
+
             } else {
+
+                console.error('!data.success : '+data.message);
 
                 tempCard.querySelector('.answer-content').innerHTML =
                     `<div class="error-message">${data.message}</div>`;
 
-                tempCard.querySelector('.chat-meta').textContent =
-                    `${data.provider} | ${data.model} | ${data.timestamp}`;
+                tempCard.querySelector('.chat-meta').textContent = '';
 
             }
 
         } catch (error) {
 
-            console.error(error);
+            console.log('catch : '+error);
+
             if (tempCard) {
-                tempCard.querySelector('.answer-content').innerHTML = '<div class="error-message">Something went wrong..!</div>';
-                // tempCard.querySelector('.answer-content').innerHTML = `<div class="error-message">${error.message}</div>`;
+                // tempCard.querySelector('.answer-content').innerHTML = '<div class="error-message">Something went wrong..!</div>';
+                tempCard.querySelector('.answer-content').innerHTML = `<div class="error-message">${error.message}</div>`;
                 tempCard.querySelector('.chat-meta').textContent = '';
             }
 
@@ -115,6 +107,76 @@ if (form) {
             form.requestSubmit();
 
         }
+    });
+
+
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+
+        btn.addEventListener('click', async (e) => {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const title = prompt('Enter new title');
+
+            if (!title) return;
+
+            const id = btn.dataset.id;
+
+            const response = await fetch(
+                `/conversations/${id}/rename`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        title
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+                location.reload();
+            }
+
+        });
+
+    });
+
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+
+        btn.addEventListener('click', async (e) => {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (!confirm('Delete this conversation?')) {
+                return;
+            }
+
+            const id = btn.dataset.id;
+
+            const response = await fetch(
+                `/conversations/${id}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                }
+            );
+
+            if (response.ok) {
+                location.href = '/';
+            }
+
+        });
+
     });
 
 }

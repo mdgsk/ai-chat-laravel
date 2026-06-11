@@ -302,81 +302,108 @@ body {
 }
 
 
-/* .conversation-item {
-    position: relative;
-}
 
-.conversation-actions {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    display: flex;
-    gap: 4px;
-}
-
-.conversation-item:hover .conversation-actions {
-    display: flex;
-}
-
-.rename-btn,
-.delete-btn {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    padding: 2px;
-    font-size: 14px;
-}
+/* =========================
+   Sidebar Conversations
+   ========================= */
 
 .conversation-item {
     position: relative;
-}
-
-.conversation-actions {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    display: none;
-}
-
-.conversation-item:hover .conversation-actions {
-    display: flex;
-} */
-
-
-.conversation-item {
-    position: relative;
+    margin-bottom: 6px;
 }
 
 .conversation-link {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 10px;
+
     text-decoration: none;
     color: var(--text);
-    padding: 8px 60px 8px 10px;
-    border-radius: 6px;
-    margin-bottom: 2px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+    transition: all .2s ease;
 }
 
+.conversation-link:hover {
+    background: #f3f6fc;
+}
+
+.conversation-link.active {
+    background: #dbeafe;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.conversation-title {
+    flex: 1;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Actions */
+
 .conversation-actions {
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
-    display: none;
-    gap: 4px;
+    display: flex;
+    gap: 6px;
+
+    opacity: 0;
+
+    transition: opacity .2s ease;
 }
 
 .conversation-item:hover .conversation-actions {
-    display: flex;
+    opacity: 1;
 }
 
 .rename-btn,
 .delete-btn {
-    border: none;
     background: transparent;
+    border: none;
+
     cursor: pointer;
-    padding: 2px;
+
+    font-size: 14px;
+
+    opacity: .75;
+}
+
+.rename-btn:hover,
+.delete-btn:hover {
+    opacity: 1;
+}
+
+/* =========================
+   Sidebar Pagination
+   ========================= */
+
+.sidebar-pagination {
+    margin-top: 16px;
+
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.sidebar-pagination a {
+    text-decoration: none;
+
+    background: #eef4ff;
+
+    color: #2563eb;
+
+    padding: 8px 14px;
+
+    border-radius: 8px;
+
     font-size: 13px;
+    font-weight: 600;
+
+    transition: .2s ease;
+}
+
+.sidebar-pagination a:hover {
+    background: #2563eb;
+    color: white;
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\MarkdownService;
+use Illuminate\Support\Facades\Validator;
 
 use App\Models\ChatHistory;
 use App\Models\Conversation;
@@ -12,13 +13,21 @@ use App\Services\AiService;
 
 class AjaxChatController extends Controller
 {
-
     public function store(Request $request)
     {
-        $request->validate([
-            'conversation_id' => 'required',
-            'question' => 'required|min:1'
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'question' => 'required|min:2'
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
 
         $recentChats = ChatHistory::where(
             'conversation_id',
@@ -74,7 +83,6 @@ class AjaxChatController extends Controller
             'time_taken' => $timeTaken,
             'timestamp' => now()->format('d M H:i')
         ]);
-
 
     }
 

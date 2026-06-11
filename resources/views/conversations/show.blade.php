@@ -21,26 +21,63 @@
 
             <h4>Chats</h4>
 
+            @php
+                $conversation_id = isset($conversation)
+                    ? $conversation->id
+                    : 0;
+            @endphp
+
             @foreach ($conversations as $item)
 
                 <div class="conversation-item">
-
-                    <a
-                        href="{{ route('conversations.show', $item) }}"
-                        class="conversation-link {{ $conversation && $item->id == $conversation->id ? 'active' : '' }}"
-                    >
-                        {{ $item->title }}
+                    <a 
+                    href="{{ route(
+                        'conversations.show',
+                        [
+                            'conversation' => $item,
+                            'conversation_page' => request('conversation_page')
+                        ]
+                    ) }}"
+                    class="conversation-link {{ $conversation_id == $item->id ? 'active' : '' }}">
+                        <span class="conversation-title">
+                            {{ Str::limit($item->title, 20) }}
+                        </span>
+                        <span class="conversation-actions">
+                            <span class="edit-btn" data-id="{{ $item->id }}">✏️</span>
+                            <span class="delete-btn" data-id="{{ $item->id }}">🗑️</span>
+                        </span>
                     </a>
-
                 </div>
 
             @endforeach
+
+            @if ($conversations->hasPages())
+
+                @if ($conversations->onFirstPage())
+                    Previous
+                @else
+                    <a href="{{ $conversations->previousPageUrl() }}">
+                        Previous
+                    </a>
+                @endif
+
+                |
+
+                @if ($conversations->hasMorePages())
+                    <a href="{{ $conversations->nextPageUrl() }}">
+                        Next
+                    </a>
+                @else
+                    Next
+                @endif
+
+            @endif
 
         </div>
 
         <div class="main-content">
 
-        @if ($conversation)
+        @if (isset($conversation))
 
             <div class="chat-form">
 
@@ -60,6 +97,7 @@
                         name="question"
                         placeholder="Ask something..."
                         required
+                        min="2"
                     ></textarea>
 
                     <button
@@ -86,7 +124,7 @@
 
             <div id="chat-history-container">
 
-                @forelse ($conversation->chatHistory as $chat)
+                @forelse($chatHistories as $chat)
 
                     <div class="chat-pair">
 
@@ -125,6 +163,12 @@
                 @endforelse
 
             </div>
+
+            @if ($chatHistories->hasMorePages())
+                <a href="{{ $chatHistories->nextPageUrl() }}">
+                    Load Older Messages
+                </a>
+            @endif
 
         @else
 
