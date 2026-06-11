@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Chat Laravel</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+    <title>Ask AI</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"
+    >
+
+    @vite(['resources/css/style.css', 'resources/js/chat.js'])
 </head>
 <body>
 
-@yield('content')
+    @yield('content')
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
 
-<script>
-    hljs.highlightAll();
-</script>
-
-@vite('resources/js/chat.js')
+    <script>
+        hljs.highlightAll();
+    </script>
 
 </body>
 </html>

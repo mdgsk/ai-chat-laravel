@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\MarkdownService;
+
 use App\Models\ChatHistory;
 use App\Models\Conversation;
 use App\Services\AiService;
@@ -33,36 +34,45 @@ class AjaxChatController extends Controller
         $response = $aiService->ask($request->question, $recentChats);
         $timeTaken = round(microtime(true) - $startTime, 2);
 
-        ChatHistory::create([
-            'conversation_id' => $request->conversation_id,
-            'question' => $request->question,
-            'answer' => $response['message'],
-            'provider' => $response['provider'],
-            'model' => $response['model'],
-            'time_taken' => $timeTaken
-        ]);
+        if ($response['success']) {
+            ChatHistory::create([
+                'conversation_id' => $request->conversation_id,
+                'question' => $request->question,
+                'answer' => $response['message'],
+                'provider' => $response['provider'],
+                'model' => $response['model'],
+                'time_taken' => $timeTaken
+            ]);
+        }
 
         $conversation = Conversation::find(
             $request->conversation_id
         );
 
-        $conversation->touch();
+        if (str_starts_with($conversation->title, 'New Chat')) {
+            $conversation->update([
+                'title' => mb_substr(
+                    trim($request->question),
+                    0,
+                    50
+                )
+            ]);
+        }
 
-        // return response()->json([
-        //     'success' => true
-        // ]);
+        $conversation->touch();
 
         $markdownService = new MarkdownService();
 
         return response()->json([
-            'success' => true,
+            'success' => $response['success'],
             'message' => $response['message'],
             'html' => $markdownService->render(
                 $response['message']
             ),
             'provider' => $response['provider'],
             'model' => $response['model'],
-            'time_taken' => $timeTaken
+            'time_taken' => $timeTaken,
+            'timestamp' => now()->format('d M H:i')
         ]);
 
 

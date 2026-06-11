@@ -127,6 +127,18 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'gemini' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/gemini.log'),
+            'level' => 'warning',
+        ],
+
+        'ollama' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/ollama.log'),
+            'level' => 'warning',
+        ],
+
     ],
 
 ];

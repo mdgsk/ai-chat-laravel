@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 10, 2026 at 06:04 PM
+-- Generation Time: Jun 11, 2026 at 12:11 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -56,6 +56,9 @@ CREATE TABLE `chat_histories` (
   `conversation_id` bigint(20) UNSIGNED NOT NULL,
   `question` text NOT NULL,
   `answer` longtext NOT NULL,
+  `provider` varchar(255) NOT NULL,
+  `model` varchar(255) NOT NULL,
+  `time_taken` decimal(8,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -64,12 +67,15 @@ CREATE TABLE `chat_histories` (
 -- Dumping data for table `chat_histories`
 --
 
-INSERT INTO `chat_histories` (`id`, `conversation_id`, `question`, `answer`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Hello', 'Hi there!', '2026-06-09 16:14:33', '2026-06-09 16:14:33'),
-(2, 2, 'Hello', 'Hi there!', '2026-06-09 16:14:45', '2026-06-09 16:14:45'),
-(3, 1, 'Hello', 'Hi there!', '2026-06-09 16:15:04', '2026-06-09 16:15:04'),
-(4, 2, 'Hello', 'Hi there!', '2026-06-10 09:29:08', '2026-06-10 09:29:08'),
-(5, 1, 'Hello', 'Hi there!', '2026-06-10 09:29:26', '2026-06-10 09:29:26');
+INSERT INTO `chat_histories` (`id`, `conversation_id`, `question`, `answer`, `provider`, `model`, `time_taken`, `created_at`, `updated_at`) VALUES
+(73, 15, 'Hi', 'Hello! How can I assist you today?', 'gemini → ollama', 'qwen2.5:7b', 21.69, '2026-06-10 21:59:47', '2026-06-10 21:59:47'),
+(74, 15, 'how are you?', 'I\'m fine, thanks for asking. How about you?', 'gemini → ollama', 'qwen2.5:7b', 6.68, '2026-06-10 22:00:33', '2026-06-10 22:00:33'),
+(75, 15, '111', 'Can you provide more context?', 'ollama', 'qwen2.5:7b', 5.18, '2026-06-10 22:02:25', '2026-06-10 22:02:25'),
+(76, 15, '222', 'Can we clarify your input?', 'ollama', 'qwen2.5:7b', 4.05, '2026-06-10 22:02:32', '2026-06-10 22:02:32'),
+(77, 15, '333', 'Can we help with a specific number or something else?', 'ollama', 'qwen2.5:7b', 4.90, '2026-06-10 22:02:39', '2026-06-10 22:02:39'),
+(78, 16, 'Hi', 'How can I assist you?', 'gemini', 'gemini-2.5-flash', 4.78, '2026-06-10 22:23:43', '2026-06-10 22:23:43'),
+(79, 16, 'how are you?', 'I\'m good, thanks! How about you?', 'gemini → ollama', 'qwen2.5:7b', 23.40, '2026-06-10 22:38:40', '2026-06-10 22:38:40'),
+(80, 17, 'Good Morning', 'Good Morning.', 'gemini', 'gemini-2.5-flash', 9.06, '2026-06-11 09:07:36', '2026-06-11 09:07:36');
 
 -- --------------------------------------------------------
 
@@ -90,10 +96,9 @@ CREATE TABLE `conversations` (
 --
 
 INSERT INTO `conversations` (`id`, `title`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'Updated Chat', '2026-06-09 16:14:33', '2026-06-10 13:09:43', NULL),
-(2, '222 New Chat', '2026-06-09 16:14:45', '2026-06-10 13:09:49', NULL),
-(3, '12345', '2026-06-10 14:12:34', '2026-06-10 14:57:27', '2026-06-10 14:57:27'),
-(4, 'Gsk, The bosS!', '2026-06-10 14:22:44', '2026-06-10 14:23:06', NULL);
+(15, 'Hi', '2026-06-10 21:54:01', '2026-06-10 22:02:39', NULL),
+(16, 'Hi', '2026-06-10 21:54:12', '2026-06-10 22:38:40', NULL),
+(17, 'Good Morning', '2026-06-11 09:07:14', '2026-06-11 09:07:36', NULL);
 
 -- --------------------------------------------------------
 
@@ -167,7 +172,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (2, '0001_01_01_000001_create_cache_table', 1),
 (3, '0001_01_01_000002_create_jobs_table', 1),
 (4, '2026_06_09_160547_create_conversations_table', 1),
-(5, '2026_06_09_160637_create_chat_histories_table', 1);
+(5, '2026_06_09_160637_create_chat_histories_table', 1),
+(6, '2026_06_10_173525_add_ai_fields_to_chat_histories_table', 2);
 
 -- --------------------------------------------------------
 
@@ -201,9 +207,8 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('FN3d8orXuTIwpDBpgkIX8Hzbx2z2x0qhESOavFQr', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiZU44QVNhMjdIcFloUnBXQ3NwSld5VUVpMlVqdmZVdHpiZ0dwbHR2VCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzU6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9jb252ZXJzYXRpb25zIjtzOjU6InJvdXRlIjtzOjE5OiJjb252ZXJzYXRpb25zLmluZGV4Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1781107047),
-('fp2XkmHjJuXtKlDqnhbNFoOUy9pdV8iqp4MSRuZb', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiSzd3QUgzN292NzFvRjRZcXBYTVQ2SkFWTUR2RTg4UW9EUldqTHhCQiI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC90ZXN0IjtzOjU6InJvdXRlIjtOO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1781025304),
-('rfy7VF9TKrZH90g23l6qcYAX1wEyrHJtlgjqVs2x', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiNXVSUGpJZ0t6UkhxZHdoWUc1ajR6VWI0T0VRdUhvV2lWRTdiWDdNRyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC90ZXN0IjtzOjU6InJvdXRlIjtOO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1781088225);
+('FN3d8orXuTIwpDBpgkIX8Hzbx2z2x0qhESOavFQr', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiZU44QVNhMjdIcFloUnBXQ3NwSld5VUVpMlVqdmZVdHpiZ0dwbHR2VCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9jb252ZXJzYXRpb25zLzE2IjtzOjU6InJvdXRlIjtzOjE4OiJjb252ZXJzYXRpb25zLnNob3ciO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1781134721),
+('yBFwyOpjVQt30jAfDtoQkwcJEWMxAQbMoJFyJwCp', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiQjVFcVFHS1pUODliZU5PeUh5U2Y5RlRVcmNUR1puR1A0N2FpcjRlcCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9jb252ZXJzYXRpb25zLzE3IjtzOjU6InJvdXRlIjtzOjE4OiJjb252ZXJzYXRpb25zLnNob3ciO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1781172456);
 
 -- --------------------------------------------------------
 
@@ -307,13 +312,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `chat_histories`
 --
 ALTER TABLE `chat_histories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
 
 --
 -- AUTO_INCREMENT for table `conversations`
 --
 ALTER TABLE `conversations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -331,7 +336,7 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`

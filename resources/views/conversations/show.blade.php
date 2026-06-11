@@ -6,84 +6,138 @@
     $markdownService = app(App\Services\MarkdownService::class);
 @endphp
 
-<h1>{{ $conversation->title }}</h1>
+<div class="container">
 
-<p>Conversation ID: {{ $conversation->id }}</p>
+    <div class="app-layout">
 
+        <div class="sidebar">
 
-@if (session('success'))
-    <p>{{ session('success') }}</p>
-@endif
+            <a
+                href="{{ route('conversations.create') }}"
+                class="new-chat-btn"
+            >
+                + New Chat
+            </a>
 
-<form action="{{ route('conversations.update', $conversation) }}" method="POST">
-    @csrf
-    @method('PUT')
+            <h4>Chats</h4>
 
-    <input
-        type="text"
-        name="title"
-        value="{{ old('title', $conversation->title) }}"
-    >
+            @foreach ($conversations as $item)
 
-    <button type="submit">
-        Rename
-    </button>
-</form>
+                <div class="conversation-item">
 
-<form action="{{ route('conversations.destroy', $conversation) }}" method="POST">
-    @csrf
-    @method('DELETE')
+                    <a
+                        href="{{ route('conversations.show', $item) }}"
+                        class="conversation-link {{ $conversation && $item->id == $conversation->id ? 'active' : '' }}"
+                    >
+                        {{ $item->title }}
+                    </a>
 
-    <button type="submit">
-        Delete Conversation
-    </button>
-</form>
+                </div>
 
-<h1>{{ $conversation->title }}</h1>
+            @endforeach
 
-<hr>
-
-<h2>Messages</h2>
-
-@forelse ($conversation->chatHistory as $chat)
-
-    <div id="chat-history-container">
-        <div>
-            <strong>You:</strong>
-            {{ $chat->question }}
         </div>
 
-        <div>
-            <strong>AI:</strong>
-            {!! $markdownService->render($chat->answer) !!}
+        <div class="main-content">
+
+        @if ($conversation)
+
+            <div class="chat-form">
+
+                <h2>Ask AI</h2>
+
+                <form id="chat-form" action="#">
+                    @csrf
+
+                    <input
+                        type="hidden"
+                        name="conversation_id"
+                        value="{{ $conversation->id }}"
+                    >
+
+                    <textarea
+                        id="question"
+                        name="question"
+                        placeholder="Ask something..."
+                        required
+                    ></textarea>
+
+                    <button
+                        id="submit-btn"
+                        type="submit"
+                    >
+                        Ask AI
+                    </button>
+
+                    <div
+                        id="loading-message"
+                        class="loading-message"
+                    >
+                        Thinking...
+                    </div>
+
+                </form>
+
+            </div>
+
+            <h3 class="history-title">
+                Chat History
+            </h3>
+
+            <div id="chat-history-container">
+
+                @forelse ($conversation->chatHistory as $chat)
+
+                    <div class="chat-pair">
+
+                        <div class="message-row user-message">
+                            <div class="message-bubble">
+                                {{ $chat->question }}
+                            </div>
+                        </div>
+
+                        <div class="message-row assistant-message">
+                            <div class="message-bubble">
+
+                                <div class="answer-content">
+                                    {!! $markdownService->render($chat->answer) !!}
+                                </div>
+
+                                <div class="chat-meta">
+                                    {{ $chat->provider }}
+                                    |
+                                    {{ $chat->model }}
+                                    |
+                                    {{ $chat->created_at->format('d M H:i') }}
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                @empty
+
+                    <p id="no-history-message">
+                        No chat history available.
+                    </p>
+
+                @endforelse
+
+            </div>
+
+        @else
+
+            <div class="empty-state">
+                Select an existing chat or click New Chat to start.
+            </div>
+
+        @endif
+
         </div>
 
-        <hr>
     </div>
 
-@empty
-    <div id="chat-history-container">
-        <p>No messages yet.</p>
-    </div>
-@endforelse
-
-
-<hr>
-
-<form id="chat-form" action="{{ route('chat-histories.store') }}" method="POST">
-    @csrf
-
-    <input
-        type="hidden"
-        name="conversation_id"
-        value="{{ $conversation->id }}"
-    >
-
-    <textarea id="question" name="question" rows="5" cols="50"></textarea>
-
-    <br><br>
-
-    <button id="submit-btn" type="submit">Ask AI</button>
-</form>
+</div>
 
 @endsection

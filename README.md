@@ -1,59 +1,309 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# AI Chat Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A simple AI Chat application built with Laravel and Gemini API, with support for local LLMs using Ollama.
 
-## About Laravel
+This project is a Laravel reimplementation of a previous Core PHP AI Chat project. The goal is to build the same functionality using Laravel architecture while keeping the application simple and avoiding unnecessary complexity.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+* Multiple conversations
+* Automatic conversation ordering
+* Context memory (last 5 chats)
+* AJAX-based chat without page reload
+* Temporary "Thinking..." card
+* Markdown rendering
+* Syntax highlighting
+* Enter to submit
+* Shift + Enter for newline
+* Automatic conversation title generation
+* Gemini API integration
+* Ollama local LLM integration
+* Gemini → Ollama fallback
+* Provider and model metadata
+* Error handling
+* Separate logs for Gemini and Ollama
+* Soft deletes
+* Database relationships
+* Responsive chat UI
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Technology Stack
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Backend
 
-## Laravel Sponsors
+* PHP 8.2
+* Laravel 12
+* MySQL
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### AI Providers
 
-### Premium Partners
+* Google Gemini API
+* Ollama Local LLM
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Frontend
 
-## Contributing
+* Blade
+* JavaScript
+* AJAX (fetch)
+* Vite
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Libraries
 
-## Code of Conduct
+* league/commonmark
+* highlight.js
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Architecture
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```text
+Form
+↓
+chat.js
+↓
+AJAX
+↓
+AjaxChatController
+↓
+AiService
+↓
+Gemini / Ollama
+↓
+MarkdownService
+↓
+JSON
+↓
+DOM Update
+↓
+No Page Reload
+```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Database
+
+### conversations
+
+```text
+id
+title
+created_at
+updated_at
+deleted_at
+```
+
+### chat_histories
+
+```text
+id
+conversation_id
+question
+answer
+provider
+model
+time_taken
+created_at
+updated_at
+deleted_at
+```
+
+---
+
+## AI Provider Flow
+
+### Normal
+
+```text
+User
+↓
+Gemini
+↓
+Response
+```
+
+### Local LLM Mode
+
+```text
+User
+↓
+Ollama
+↓
+Response
+```
+
+### Fallback Mode
+
+```text
+User
+↓
+Gemini
+↓
+Failure
+↓
+Ollama
+↓
+Response
+```
+
+Metadata example:
+
+```text
+gemini | gemini-2.5-flash
+
+gemini → ollama | qwen2.5:7b
+```
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/mdgsk/ai-chat-laravel.git
+```
+
+Move into the project:
+
+```bash
+cd ai-chat-laravel
+```
+
+Install PHP dependencies:
+
+```bash
+composer install
+```
+
+Install Node dependencies:
+
+```bash
+npm install
+```
+
+Copy environment file:
+
+```bash
+cp .env.example .env
+```
+
+Generate application key:
+
+```bash
+php artisan key:generate
+```
+
+---
+
+## Database Setup
+
+### Option 1: Run Migrations
+
+```bash
+php artisan migrate
+```
+
+---
+
+### Option 2: Import SQL Dump
+
+Import:
+
+```text
+database/dump/ai_chat_laravel.sql
+```
+
+using phpMyAdmin.
+
+---
+
+## Environment Variables
+
+Example:
+
+```env
+USE_LOCAL_LLM=false
+
+FALLBACK_TO_LOCAL_LLM=true
+
+GEMINI_SAMPLE_RESPONSE=false
+GEMINI_SAMPLE_RESPONSE_SUCCESS=false
+
+GEMINI_MODEL=gemini-2.5-flash
+OLLAMA_MODEL=qwen2.5:7b
+
+SYSTEM_PROMPT=
+GEMINI_API_KEY=
+```
+
+---
+
+## Running the Application
+
+Start Laravel:
+
+```bash
+php artisan serve
+```
+
+Start Vite:
+
+```bash
+npm run dev
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000
+```
+
+---
+
+## Logs
+
+Gemini logs:
+
+```text
+storage/logs/gemini.log
+```
+
+Ollama logs:
+
+```text
+storage/logs/ollama.log
+```
+
+Laravel logs:
+
+```text
+storage/logs/laravel.log
+```
+
+---
+
+## Current Capabilities
+
+* Create new chats
+* Automatic title generation
+* Context-aware responses
+* Markdown support
+* Syntax highlighting
+* AJAX updates
+* Error handling
+* Local LLM support
+* Gemini fallback
+* Conversation ordering
+
+---
+
+## Author
+
+Md Gaffar Ali Shaikh
+
+GitHub:
+
+https://github.com/mdgsk

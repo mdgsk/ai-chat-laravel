@@ -7,16 +7,21 @@ use App\Models\Conversation;
 use App\Models\ChatHistory;
 
 use App\Http\Controllers\ConversationController;
-use App\Http\Controllers\ChatHistoryController;
 use App\Http\Controllers\AjaxChatController;
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [ConversationController::class, 'index'])
+    ->name('conversations.index');
 
-Route::resource('conversations', ConversationController::class);
-Route::resource('chat-histories', ChatHistoryController::class);
+Route::get('/conversations/create', [ConversationController::class, 'create'])
+    ->name('conversations.create');
 
-Route::post('/ajax-chat', [AjaxChatController::class, 'store'])->name('ajax-chat.store');
+Route::get('/conversations/{conversation}', [ConversationController::class, 'show'])
+    ->name('conversations.show');
+
+Route::delete('/conversations/{conversation}', [ConversationController::class, 'destroy'])
+    ->name('conversations.destroy');
+
+Route::post('/ajax-chat', [AjaxChatController::class, 'store'])
+    ->name('ajax-chat.store');
 

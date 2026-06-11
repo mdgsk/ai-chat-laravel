@@ -14,12 +14,16 @@ class ConversationController extends Controller
      */
     public function index()
     {
-        // $conversations = Conversation::latest()->get();
         $conversations = Conversation::latest('updated_at')->get();
+        $conversation = $conversations->first();
 
-         return view('conversations.index', [
-            'conversations' => $conversations
-        ]);
+        return view(
+            'conversations.show',
+            [
+                'conversations' => $conversations,
+                'conversation' => $conversation
+            ]
+        );
     }
 
 
@@ -28,7 +32,14 @@ class ConversationController extends Controller
      */
     public function create()
     {
-        //
+        $conversation = Conversation::create([
+            'title' => 'New Chat ' . now()->format('H:i:s')
+        ]);
+
+        return redirect()->route(
+            'conversations.show',
+            $conversation
+        );
     }
 
 
@@ -37,16 +48,7 @@ class ConversationController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required|min:3'
-        ]);
-
-        Conversation::create([
-            'title' => $request->title
-        ]);
-
-        return redirect()->route('conversations.index')
-            ->with('success', 'Conversation created successfully!');
+        // 
     }
 
 
@@ -55,11 +57,21 @@ class ConversationController extends Controller
      */
     public function show(Conversation $conversation)
     {
-        $conversation->load('chatHistory');
-
-        return view('conversations.show', [
-            'conversation' => $conversation
+        $conversation->load([
+            'chatHistory' => function ($query) {
+                $query->latest();
+            }
         ]);
+
+        $conversations = Conversation::latest('updated_at')->get();
+
+        return view(
+            'conversations.show',
+            [
+                'conversation' => $conversation,
+                'conversations' => $conversations
+            ]
+        );
     }
 
 
@@ -77,17 +89,7 @@ class ConversationController extends Controller
      */
     public function update(Request $request, Conversation $conversation)
     {
-        $request->validate([
-            'title' => 'required|min:3'
-        ]);
-
-        $conversation->update([
-            'title' => $request->title
-        ]);
-
-        return redirect()
-            ->route('conversations.show', $conversation)
-            ->with('success', 'Conversation renamed successfully!');
+        //
     }
 
 
@@ -96,11 +98,7 @@ class ConversationController extends Controller
      */
     public function destroy(Conversation $conversation)
     {
-        $conversation->delete();
-
-        return redirect()
-            ->route('conversations.index')
-            ->with('success', 'Conversation deleted successfully!');
+        //
     }
 
 }

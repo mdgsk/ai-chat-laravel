@@ -3,32 +3,37 @@
 namespace App\Services;
 
 use Illuminate\Database\Eloquent\Collection;
-
+use Illuminate\Support\Facades\Log;
 
 class AiService
 {
     
-    // public function ask(string $question, string $provider = 'gemini'): array
+
     public function ask(string $question, Collection $recentChats, string $provider = 'gemini'): array
     {
-        // die('aaaaaaaaaaaaaaaaaaa');
-        sleep(3);
 
-        if ($provider === 'gemini') {
-            return $this->askGemini($question, $recentChats);
+        if (env('USE_LOCAL_LLM')) {
+            return $this->askOllama(
+                $question,
+                $recentChats
+            );
         }
 
-        if ($provider === 'ollama') {
-            return $this->askOllama($question, $recentChats);
-        }
-
-        // return 'Unsupported provider';
-        return $this->aiResponse(
-            false,
-            'Unsupported provider',
-            'NA',
-            'NA'
+        $response = $this->askGemini(
+            $question,
+            $recentChats
         );
+
+        if (!$response['success'] && env('FALLBACK_TO_LOCAL_LLM')) {
+            $fallbackResponse = $this->askOllama(
+                $question,
+                $recentChats
+            );
+            $fallbackResponse['provider'] = 'gemini → ollama';
+            return $fallbackResponse;
+        }
+
+        return $response;
     }
 
 
@@ -37,6 +42,22 @@ class AiService
         $provider = 'gemini';
         $model = env('GEMINI_MODEL');
         $key = env('GEMINI_API_KEY');
+
+        if (env('GEMINI_SAMPLE_RESPONSE')) {
+            return env('GEMINI_SAMPLE_RESPONSE_SUCCESS')
+                ? $this->aiResponse(
+                    true,
+                    'Success msg from gemini sample',
+                    'gemini sample',
+                    $model
+                )
+                : $this->aiResponse(
+                    false,
+                    'Error msg from gemini sample',
+                    'gemini sample',
+                    $model
+            );
+        }
 
         $context = $this->buildContext($recentChats);
 
@@ -110,17 +131,99 @@ class AiService
 
     private function askOllama(string $question, Collection $recentChats): array
     {
+        $provider = 'ollama';
+        $model = env('OLLAMA_MODEL');
+
+        $context = $this->buildContext($recentChats);
+
+        $fullPrompt = env('SYSTEM_PROMPT')
+            . "\n\n"
+            . $context
+            . "\n\nActual User Message:\n"
+            . $question
+            . "\n\nAssistant:";
+
+        $payload = [
+            'model' => $model,
+            'prompt' => $fullPrompt,
+            'stream' => false
+        ];
+
+        $ch = curl_init();
+
+        curl_setopt_array($ch, [
+            CURLOPT_URL => 'http://localhost:11434/api/generate',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode($payload)
+        ]);
+
+        $response = curl_exec($ch);
+        $curlError = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        if ($response === false) {
+            return $this->aiResponse(
+                false,
+                'Failed to connect to Ollama: ' . $curlError,
+                $provider,
+                $model
+            );
+        }
+
+        $data = json_decode($response, true);
+
+        if (isset($data['error'])) {
+            return $this->aiResponse(
+                false,
+                $data['error'],
+                $provider,
+                $model
+            );
+        }
+
+        if ($httpCode != 200) {
+            return $this->aiResponse(
+                false,
+                $response,
+                $provider,
+                $model
+            );
+        }
+
+        if (empty($data['response'])) {
+            return $this->aiResponse(
+                false,
+                'Empty response from Ollama',
+                $provider,
+                $model
+            );
+        }
+
         return $this->aiResponse(
             true,
-            'Dummy Ollama response',
-            'ollama',
-            'llama3'
+            $data['response'],
+            $provider,
+            $model
         );
     }
 
 
     private function aiResponse(bool $success, string $message, string $provider, string $model): array
     {
+
+        if (!$success) {
+            Log::channel($provider)->warning(
+                "{$provider} request failed",
+                [
+                    'response' => $message
+                ]
+            );
+        }
+
         return [
             'success' => $success,
             'message' => $message,

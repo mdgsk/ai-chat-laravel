@@ -4,6 +4,7 @@ const form = document.getElementById('chat-form');
 const submitBtn = document.getElementById('submit-btn');
 const promptInput = document.getElementById('question');
 const historyContainer = document.getElementById('chat-history-container');
+const noHistoryMessage = document.getElementById('no-history-message');
 
 let isProcessing = false;
 
@@ -21,23 +22,20 @@ if (form) {
         submitBtn.textContent = 'Thinking...';
         isProcessing = true;
 
+        const promptText = promptInput.value;
+        const tempId = 'temp-' + Date.now();
+        historyContainer.insertAdjacentHTML(
+            'afterbegin',
+            createChatCard(
+                promptText,
+                '<em>Thinking...</em>',
+                '',
+                tempId
+            )
+        );
+        const tempCard = document.getElementById(tempId);
+
         try {
-
-            const promptText = promptInput.value;
-
-            const tempId = 'temp-' + Date.now();
-
-            historyContainer.insertAdjacentHTML(
-                'afterbegin',
-                createChatCard(
-                    promptText,
-                    '<em>Thinking...</em>',
-                    '',
-                    tempId
-                )
-            );
-
-            const tempCard = document.getElementById(tempId);
 
             const response = await fetch(
                 '/ajax-chat',
@@ -46,6 +44,16 @@ if (form) {
                     body: new FormData(form)
                 }
             );
+
+            if (!response.ok) {
+
+                // throw new Error(
+                //     'Server error: ' + response.status
+                // );
+                const errorText = await response.text();
+                throw new Error(errorText);
+                
+            }
 
             const data = await response.json();
 
@@ -56,20 +64,35 @@ if (form) {
                 promptInput.focus();
                 historyContainer.scrollTop = 0;
 
+                if (noHistoryMessage) {
+                    noHistoryMessage.remove();
+                }
+
                 tempCard.querySelector('.answer-content').innerHTML = data.html;
-                tempCard.querySelector('.chat-meta').textContent = `${data.provider} | ${data.model}`;
+                tempCard.querySelector('.chat-meta').textContent = `${data.provider} | ${data.model} | ${data.timestamp}`;
 
                 tempCard.querySelectorAll('pre code')
                 .forEach((block) => {
                     hljs.highlightElement(block);
                 });
+            } else {
+
+                tempCard.querySelector('.answer-content').innerHTML =
+                    `<div class="error-message">${data.message}</div>`;
+
+                tempCard.querySelector('.chat-meta').textContent =
+                    `${data.provider} | ${data.model} | ${data.timestamp}`;
+
             }
 
         } catch (error) {
 
             console.error(error);
-            tempCard.querySelector('.answer-content').innerHTML = '<div class="text-danger">Something went wrong.</div>';
-            tempCard.querySelector('.chat-meta').textContent = '';
+            if (tempCard) {
+                tempCard.querySelector('.answer-content').innerHTML = '<div class="error-message">Something went wrong..!</div>';
+                // tempCard.querySelector('.answer-content').innerHTML = `<div class="error-message">${error.message}</div>`;
+                tempCard.querySelector('.chat-meta').textContent = '';
+            }
 
         } finally {
 
@@ -107,7 +130,6 @@ function escapeHtml(text)
 }
 
 
-// function createChatCard(prompt, answer, meta)
 function createChatCard(prompt, answer, meta, cardId = '')
 {
     return `
