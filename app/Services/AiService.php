@@ -4,10 +4,19 @@ namespace App\Services;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
+use App\Services\PromptBuilderService;
+
 
 class AiService
 {
     
+    private PromptBuilderService $promptBuilder;
+
+    public function __construct(PromptBuilderService $promptBuilder)
+    {
+        $this->promptBuilder = $promptBuilder;
+    }
+
 
     public function ask(string $question, Collection $recentChats, string $provider = 'gemini'): array
     {
@@ -59,19 +68,25 @@ class AiService
             );
         }
 
-        $context = $this->buildContext($recentChats);
+        // $context = $this->buildContext($recentChats);
 
         $url = 'https://generativelanguage.googleapis.com/v1beta/models/'
         . $model
         . ':generateContent?key='
         . $key;
 
-        $fullPrompt = env('SYSTEM_PROMPT')
-            . "\n\n"
-            . $context
-            . "\n\nActual User Message:\n"
-            . $question
-            . "\n\nAssistant:";
+        // $fullPrompt = env('SYSTEM_PROMPT')
+        //     . "\n\n"
+        //     . $context
+        //     . "\n\nActual User Message:\n"
+        //     . $question
+        //     . "\n\nAssistant:";
+
+        $fullPrompt = $this->promptBuilder->buildPrompt(
+            $question,
+            $recentChats
+        );
+
 
         $payload = [
             'contents' => [[
@@ -134,14 +149,21 @@ class AiService
         $provider = 'ollama';
         $model = env('OLLAMA_MODEL');
 
-        $context = $this->buildContext($recentChats);
+        // $context = $this->buildContext($recentChats);
 
-        $fullPrompt = env('SYSTEM_PROMPT')
-            . "\n\n"
-            . $context
-            . "\n\nActual User Message:\n"
-            . $question
-            . "\n\nAssistant:";
+        // $fullPrompt = env('SYSTEM_PROMPT')
+        //     . "\n\n"
+        //     . $context
+        //     . "\n\nActual User Message:\n"
+        //     . $question
+        //     . "\n\nAssistant:";
+
+        $fullPrompt = $this->promptBuilder->buildPrompt(
+            $question,
+            $recentChats
+        );
+
+        // echo $fullPrompt; die;
 
         $payload = [
             'model' => $model,
@@ -233,17 +255,17 @@ class AiService
     }
 
 
-    private function buildContext(Collection $chats): string
-    {
-        $context = '';
+    // private function buildContext(Collection $chats): string
+    // {
+    //     $context = '';
 
-        foreach ($chats as $chat) {
-            $context .= "User: {$chat->question}\n";
-            $context .= "Assistant: {$chat->answer}\n\n";
-        }
+    //     foreach ($chats as $chat) {
+    //         $context .= "User: {$chat->question}\n";
+    //         $context .= "Assistant: {$chat->answer}\n\n";
+    //     }
 
-        return $context;
-    }
+    //     return $context;
+    // }
 
 
 }

@@ -38,7 +38,9 @@ class AjaxChatController extends Controller
         ->get()
         ->reverse();
 
-        $aiService = new AiService();
+        // $aiService = new AiService();
+        $aiService = app(AiService::class);
+        
         $startTime = microtime(true);
         $response = $aiService->ask($request->question, $recentChats);
         $timeTaken = round(microtime(true) - $startTime, 2);
