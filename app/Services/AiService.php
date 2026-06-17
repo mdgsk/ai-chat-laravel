@@ -32,27 +32,24 @@ class AiService
     public function ask(string $question, Collection $recentChats): array
     {
 
-        if (config('ai.use_local_llm')) {
-            return $this->askProvider(
-                $question,
-                $recentChats,
-                $this->providerService->get('ollama')
-            );
-        }
-
         $response = $this->askProvider(
             $question,
             $recentChats,
-            $this->providerService->get('gemini')
+            $this->providerService->defaultProvider()
         );
 
-        if (!$response['success'] && config('ai.fallback_to_local_llm')) {
+        if ($this->providerService->shouldFallback($response)) {
             $fallbackResponse = $this->askProvider(
                 $question,
                 $recentChats,
-                $this->providerService->get('ollama')
+                $this->providerService->fallbackProvider()
             );
-            $fallbackResponse['provider'] = 'gemini → ollama';
+            
+            $fallbackResponse['provider'] = $this->providerService->fallbackChain(
+                $response['provider'],
+                $fallbackResponse['provider']
+            );
+
             return $fallbackResponse;
         }
 
