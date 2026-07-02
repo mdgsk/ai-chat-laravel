@@ -16,28 +16,18 @@ class ProviderService
     ) {
     }
 
-    public function get(string $provider): AiProviderInterface
-    {
-        return match ($provider) {
-            self::OLLAMA => $this->ollamaService,
-            self::GEMINI => $this->geminiService,
-            default => throw new \InvalidArgumentException(
-                "Unsupported provider: {$provider}"
-            ),
-        };
-    }
-
     public function defaultProvider(): AiProviderInterface
     {
-        if (config('ai.use_local_llm')) {
-            return $this->ollamaService;
-        }
-        return $this->geminiService;
+        return $this->getProvider(
+            config('ai.use_local_llm')
+                ? self::OLLAMA
+                : self::GEMINI
+        );
     }
 
     public function fallbackProvider(): AiProviderInterface
     {
-        return $this->ollamaService;
+        return $this->getProvider(self::OLLAMA);
     }
 
     public function shouldFallback(array $response): bool
@@ -51,8 +41,16 @@ class ProviderService
         return "{$fromProvider} → {$toProvider}";
     }
 
-
-
+    public function getProvider(string $provider): AiProviderInterface
+    {
+        return match ($provider) {
+            self::OLLAMA => $this->ollamaService,
+            self::GEMINI => $this->geminiService,
+            default => throw new \InvalidArgumentException(
+                "Unsupported provider: {$provider}"
+            ),
+        };
+    }
 
 
 }
