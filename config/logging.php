@@ -139,6 +139,12 @@ return [
             'level' => 'warning',
         ],
 
+        'debugging' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/debugging.log'),
+            'level' => 'debug',
+        ],
+
     ],
 
 ];

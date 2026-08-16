@@ -12,7 +12,7 @@ class MessageBuilderService
 
         $messages[] = [
             'role' => 'system',
-            'content' => config('ai.system_prompt')
+            'content' => config('prompts.' . config('ai.prompt'))
         ];
 
         foreach ($chats as $chat) {

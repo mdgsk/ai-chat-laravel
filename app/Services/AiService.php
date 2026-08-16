@@ -69,6 +69,12 @@ class AiService
             $fullPrompt
         );
 
+        // logs for debugging
+        Log::channel('debugging')->info('AI Prompt', [
+            'PROMPT' => $fullPrompt,
+            'RESPONSE' => $result['message'],
+        ]);
+        
         return $this->aiResponse(
             $result['success'],
             $result['message'],

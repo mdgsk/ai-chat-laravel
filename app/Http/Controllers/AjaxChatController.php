@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\MarkdownService;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\ChatHistory;
 use App\Models\Conversation;
@@ -34,11 +35,10 @@ class AjaxChatController extends Controller
             $request->conversation_id
         )
         ->latest()
-        ->take(5)
+        ->take(config('ai.context_messages'))
         ->get()
         ->reverse();
 
-        // $aiService = new AiService();
         $aiService = app(AiService::class);
         
         $startTime = microtime(true);
