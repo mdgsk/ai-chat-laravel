@@ -45,29 +45,9 @@ class MessageBuilderService
 
         $prompt = '';
 
-        // foreach ($messages as $index => $message) {
-        //     if ($index === array_key_last($messages)) {
-        //         $prompt .= "Current User Question:\n"
-        //             . $message['content']
-        //             . "\n\n";
-        //         continue;
-        //     }
-
-        //     $prompt .= ucfirst($message['role'])
-        //         . ': '
-        //         . $message['content']
-        //         . "\n\n";
-        // }
-
-        // $prompt .= "System Instructions:\n"
-        //     . $messages[0]['content']
-        //     . "\n\n";
-
         $prompt .= "System Instructions:\n"
             . $messages[0]['content']
             . "\n\n"
-            // . "Use the Conversation History to understand the context of the current user question, "
-            // . "including short follow-up questions and references to previous messages.\n\n";
             . "Use the Conversation History to understand the context of the current user question, "
             . "including short follow-up questions and references to previous messages. "
             . "Answer the Current User Question directly and use the conversation history only as context.\n\n";

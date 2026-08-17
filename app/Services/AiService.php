@@ -69,12 +69,26 @@ class AiService
             $fullPrompt
         );
 
-        // logs for debugging
-        Log::channel('debugging')->info('AI Prompt', [
-            'PROMPT' => $fullPrompt,
-            'RESPONSE' => $result['message'],
-        ]);
-        
+        // log
+        Log::channel('debugging')->info(
+            "==================== " .
+            "AI CHAT REQUEST " .
+            "====================\n\n" .
+            "QUESTION\n" .
+            "----------------------------\n" .
+            $question . "\n\n" .
+            "CONTEXT COUNT: " . $recentChats->count() . "\n\n" .
+            "PROMPT\n" .
+            "---------------------------\n" .
+            $fullPrompt . "\n" .
+            "RESPONSE\n" .
+            "----------------------------\n" .
+            $result['message'] . "\n\n" .
+            "PROVIDER: " . $result['provider'] . "\n" .
+            "MODEL: " . $result['model'] . "\n\n\n\n\n"
+        );
+
+
         return $this->aiResponse(
             $result['success'],
             $result['message'],
